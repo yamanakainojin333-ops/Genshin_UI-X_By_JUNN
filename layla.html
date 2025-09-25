@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="viewport-meta">
+    <title>Layla - Genshin Impact</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Desktop Mode Modal */
+        .desktop-mode-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        .desktop-mode-modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .desktop-mode-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .desktop-mode-modal.show .desktop-mode-content {
+            transform: scale(1);
+        }
+
+        .desktop-mode-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .desktop-mode-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .desktop-mode-message {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .desktop-mode-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .desktop-mode-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 160px;
+        }
+
+        .btn-force-desktop {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-force-desktop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-continue-mobile {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-continue-mobile:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .desktop-mode-warning {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            border-left: 4px solid #ffd93d;
+        }
+
+        /* Force Desktop Mode Styles */
+        body.force-desktop-mode {
+            min-width: 1200px;
+            overflow-x: auto;
+        }
+
+        body.force-desktop-mode * {
+            box-sizing: border-box;
+        }
+
+        /* Hide mobile responsive behavior when forced desktop */
+        .force-desktop-mode nav {
+            flex-direction: row !important;
+            padding: 16px 48px !important;
+        }
+
+        .force-desktop-mode .nav-center {
+            display: flex !important;
+        }
+
+        .force-desktop-mode .search-container {
+            width: 300px !important;
+            margin-left: 20px !important;
+        }
+
+        .force-desktop-mode .hero-container {
+            flex-direction: row !important;
+            padding: 48px !important;
+            text-align: left !important;
+        }
+
+        .force-desktop-mode .hero-text-container {
+            position: absolute !important;
+            left: 100px !important;
+            top: 140px !important;
+            max-width: 50% !important;
+        }
+
+        .force-desktop-mode .hero-image-container {
+            right: -200px !important;
+            left: auto !important;
+            width: 50% !important;
+            height: 600px !important;
+            min-width: 400px !important;
+            bottom: 20% !important;
+        }
+
+        .force-desktop-mode .hero-heading {
+            font-size: 92px !important;
+        }
+
+        .force-desktop-mode .hero-subheading {
+            font-size: 24px !important;
+        }
+
+        .force-desktop-mode .main-content {
+            grid-template-columns: 1fr 1fr 1fr !important;
+            padding: 0 48px !important;
+        }
+
+        .force-desktop-mode .arrow-nav {
+            display: flex !important;
+        }
+
+        /* Variabel CSS untuk Dark & Light Mode */
+:root {
+    --bg: #f6f8fb;
+    --muted-bg: #eef2f8;
+    --hero-start: #7fa4d9;
+    --hero-end: #6b89c6;
+    --accent: #5D5CDE;
+    --text-primary: #0f1724;
+    --text-muted: #6b7280;
+    --white: #ffffff;
+    --card-bg: var(--white);
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --border-color: rgba(95, 111, 176, 0.05);
+}
+
+body.dark-mode {
+    --bg: #181818;
+    --muted-bg: #2d3748;
+    --hero-start: #4a69a0;
+    --hero-end: #3d5a80;
+    --accent: #5D5CDE;
+    --text-primary: #e2e8f0;
+    --text-muted: #a0aec0;
+    --white: #2d3748;
+    --card-bg: #2d3748;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --border-color: rgba(144, 205, 244, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+    transition: opacity 0.8s ease;
+    opacity: 1;
+}
+
+.loading-screen.fade-out {
+    opacity: 0;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--accent);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 2s ease-in-out infinite;
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Navigation */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 48px;
+    position: relative;
+    z-index: 10;
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--muted-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+    position: relative;
+}
+
+/* Tooltip */
+.avatar:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.plus-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.plus-btn:hover {
+    background-color: #4a5a9a;
+    transform: translateY(-2px);
+}
+
+.nav-center {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.4s ease;
+    position: relative;
+}
+
+.nav-link.active {
+    color: var(--accent);
+}
+
+.nav-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    border: none;
+    outline: none;
+    position: relative;
+}
+
+.btn-outline {
+    border: 1.5px solid var(--accent);
+    background-color: transparent;
+    color: var(--accent);
+}
+
+.btn-outline:hover {
+    background-color: rgba(95, 111, 176, 0.05);
+    transform: translateY(-2px);
+}
+
+.btn-filled {
+    background-color: var(--accent);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(95, 111, 176, 0.2);
+}
+
+.btn-filled:hover {
+    background-color: #4a5a9a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(95, 111, 176, 0.3);
+}
+
+.btn::after,
+.plus-btn::after,
+.view-more-btn::after,
+.read-more::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.8s ease;
+    opacity: 0;
+}
+
+.btn.clicked::after,
+.plus-btn.clicked::after,
+.view-more-btn.clicked::after,
+.read-more.clicked::after {
+    transform: translateX(0);
+    opacity: 1;
+    animation: slideIn 0.8s ease forwards;
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.search-container {
+    position: relative;
+    width: 300px;
+    margin-left: 20px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--border-color);
+    background-color: var(--muted-bg);
+    color: var(--text-primary);
+    font-size: 16px;
+    transition: all 0.4s ease;
+    outline: none;
+}
+
+.search-container input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(93, 92, 222, 0.1);
+    background-color: var(--card-bg);
+}
+
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.search-suggestions a {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-suggestions a:last-child {
+    border-bottom: none;
+}
+
+.search-suggestions a:hover {
+    background-color: var(--muted-bg);
+    color: var(--accent);
+}
+
+.dark-mode-toggle {
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 0.4s ease;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+}
+
+.audio-toggle {
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 0.4s ease;
+}
+
+.audio-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Replay Button */
+.replay-btn {
+    position: fixed;
+    bottom: 320px;
+    right: 90px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #4a5a9a);
+    color: var(--white);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(93, 92, 222, 0.3);
+    z-index: 50;
+    transition: all 0.4s ease;
+    animation: pulse 2s infinite;
+}
+
+.replay-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(93, 92, 222, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 16px rgba(93, 92, 222, 0.3);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(93, 92, 222, 0.5);
+    }
+    100% {
+        box-shadow: 0 4px 16px rgba(93, 92, 222, 0.3);
+    }
+}
+
+/* HERO - PERBAIKAN TRANSISI SMOOTH DAN UKURAN KONSISTEN */
+.hero-container {
+    max-width: 1200px;
+    margin: 48px auto;
+    position: relative;
+    padding: 48px;
+    border-radius: 24px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 480px;
+    overflow: hidden;
+    transition: background-image 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.small-image-container {
+    position: absolute;
+    top: -25px;
+    left: 20px;
+    z-index: 7;
+}
+
+.small-image-container img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+}
+
+.hero-text-container {
+    position: absolute;
+    z-index: 5;
+    color: #fff;
+    left: 100px;
+    top: 140px;
+    max-width: 50%;
+}
+
+.hero-heading {
+    font-size: 92px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.hero-subheading {
+    font-size: 24px;
+    line-height: 1.4;
+    opacity: 1;
+    min-height: 1.2em;
+}
+
+/* HERO IMAGE CONTAINER - POSISI LEBIH KE ATAS */
+.hero-image-container {
+    position: absolute;
+    right: -200px;
+    left: auto;
+    transform: translateX(-50%);
+    bottom: 20%; /* Dipindah sedikit ke atas dari -20px */
+    width: 50%;
+    max-width: 500px;
+    min-width: 400px;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 6;
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) translateX(-50%); }
+    50% { transform: translateY(-15px) translateX(-50%); }
+    100% { transform: translateY(0) translateX(-50%); }
+}
+
+/* HERO IMAGE - PERBAIKAN UKURAN KONSISTEN */
+.hero-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    margin: -40px;
+    object-fit: contain;
+    object-position: bottom;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.15));
+    opacity: 1;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 600px;
+    min-height: 500px;
+}
+
+/* Hero Image Animation - PERBAIKAN DENGAN ANIMASI MUNCUL DARI BAWAH */
+@keyframes slideUpFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(60px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.hero-image.slide-animation {
+    animation: slideUpFromBottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.hero-buttons {
+    position: absolute;
+    z-index: 5;
+    bottom: 40px;
+    left: 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.read-more{
+    display:inline-block;
+    padding:15px 16px;
+    border-radius:999px;
+    border:2px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.03);
+    color:#fff;
+    text-decoration:none;
+    font-weight:700;
+    position: relative;
+}
+
+.arrow-nav {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    cursor: pointer;
+    z-index: 8;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+}
+
+.arrow-nav.left {
+    left: 15px;
+    top: 65%;
+    transform: translateY(-50%);
+}
+
+.arrow-nav.right {
+    right: 15px;
+    top: 65%;
+    transform: translateY(-50%);
+}
+
+.arrow-nav:hover {
+    background-color: rgba(255,255,255,0.2);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.dot {
+    height: 12px;
+    width: 12px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.4s ease, width 0.5s ease, border-radius 0.5s ease;
+}
+.dot.active {
+    background-color: #fff;
+    width: 30px;
+    border-radius: 6px;
+}
+
+/* Main Content */
+.main-content {
+    max-width: 1200px;
+    margin: 48px auto;
+    padding: 0 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 48px;
+}
+
+/* Reveal on Scroll effect */
+.reveal-on-scroll {
+    opacity: 0;
+    transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+}
+
+/* --- ANIMASI BARU --- */
+/* Animasi dari kiri */
+.animate-from-left {
+    opacity: 0;
+    transform: translateX(-80px);
+    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-from-left.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animasi dari bawah */
+.animate-from-bottom {
+    opacity: 0;
+    transform: translateY(80px);
+    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-from-bottom.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animasi dari kanan */
+.animate-from-right {
+    opacity: 0;
+    transform: translateX(80px);
+    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-from-right.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animasi tumpukan (stagger) */
+.stagger-item {
+    transition-delay: var(--stagger-delay);
+}
+/* -------------------- */
+
+
+/* Artwork Column */
+.artwork-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.artwork-card {
+    background-color: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    cursor: pointer;
+}
+
+.artwork-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.artwork-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.artwork-byline {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.view-more-btn {
+    align-self: flex-start;
+    padding: 12px 24px;
+    background-color: var(--muted-bg);
+    color: var(--text-primary);
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    margin-top: 16px;
+    position: relative;
+}
+
+.view-more-btn:hover {
+    background-color: var(--bg);
+    transform: translateY(-2px);
+}
+
+/* Glassmorphism */
+.glass-card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+}
+
+body.dark-mode .glass-card {
+    background: rgba(45, 55, 72, 0.3);
+    border: 1px solid rgba(45, 55, 72, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Lightbox (modal) styles */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.5s, opacity 0.5s;
+}
+
+.lightbox.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Recent Search Column - Enhanced visual design */
+.search-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.search-chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(93, 92, 222, 0.1), rgba(93, 92, 222, 0.05));
+    border-radius: 16px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.03);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.search-chips.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.search-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px 12px 16px;
+    background-color: var(--card-bg);
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    transform: translateY(0);
+    z-index: 1;
+    text-decoration: none;
+}
+
+.search-chip::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 9999px;
+    background: linear-gradient(45deg, #f06, #09f, #3c0);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.search-chip:hover::before,
+.search-chip.active::before {
+    opacity: 1;
+    animation: gradient-anim 4s linear infinite;
+}
+
+@keyframes gradient-anim {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.search-chip.active {
+    background-color: var(--accent);
+    color: var(--white);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 16px rgba(93, 92, 222, 0.3);
+    transform: translateY(-2px);
+}
+
+.search-chip:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.search-chip:active {
+    transform: translateY(0);
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: transform 0.5s ease;
+}
+
+.search-chip:hover .search-icon {
+    transform: scale(1.1);
+}
+
+.chip-remove {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.5s ease;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.search-chip:hover .chip-remove {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.chip-remove:hover {
+    background-color: rgba(255, 0, 0, 0.2);
+    color: #ff4444;
+}
+
+.horizontal-banner {
+    width: 80%;
+    max-width: 100%;
+    border-radius: 5px;
+    margin-top: -30px; /* Posisi lebih ke atas */
+    bottom: 70px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: slideUpFromBottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.horizontal-banner.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.horizontal-banner:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.banner-image {
+    width: 100%;
+    height: auto;
+    top: 70px;
+    display: block;
+    object-fit: cover;
+    transition: opacity 0.4s ease;
+}
+
+/* HORIZONTAL IMAGE SECTION - DENGAN ANIMASI MUNCUL DARI BAWAH */
+.horizontal-image-section {
+    margin-top: -20px; /* Posisi lebih ke atas */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.horizontal-image-section.show {
+    opacity: 1;
+    transform: translateY(0);
+    animation: slideUpFromBottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.horizontal-image-card {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: slideUpFromBottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.horizontal-image-card.animate {
+    animation-delay: 0.2s;
+}
+
+.horizontal-image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.horizontal-image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 24px 20px 16px;
+    transform: translateY(0);
+    transition: transform 0.5s ease;
+}
+
+.horizontal-image-overlay h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.horizontal-image-overlay p {
+    font-size: 14px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.horizontal-image-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.horizontal-image-card:hover img {
+    transform: scale(1.05);
+}
+
+.horizontal-image-card:hover .horizontal-image-overlay {
+    transform: translateY(-4px);
+}
+
+/* Info Cards Column */
+.info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Icon Cards Container - LAYOUT VERTIKAL UNTUK SEMUA SLIDE */
+.icon-cards-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+    max-width: 200px;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-card {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background-color: #5f6fb0;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    flex-shrink: 0;
+}
+
+.icon-card img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.icon-card:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Icon Card States */
+.icon-card.highlighted {
+    transform: scale(1.15) translateY(-8px);
+    box-shadow: 0 12px 24px rgba(93, 92, 222, 0.4);
+    z-index: 10;
+    position: relative;
+}
+
+.icon-card.dimmed {
+    transform: scale(0.85);
+    opacity: 0.6;
+    filter: grayscale(50%);
+}
+
+.icon-card.show-close .close-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.close-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: white;
+    color: #555;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 25px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: background 0.3s ease;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.icon-card:hover .close-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.close-btn:hover {
+    background-color: #eee;
+}
+
+.info-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
+    background-color: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.5s ease, box-shadow 0.5s ease, background-color 0.5s ease;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.info-card .info-img {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.info-card .info-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-card .info-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.info-card .info-description {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* share buttons */
+.share-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.share-buttons a {
+    color: var(--text-muted);
+    font-size: 20px;
+    transition: color 0.4s ease;
+}
+
+.share-buttons a:hover {
+    color: var(--accent);
+}
+
+/* Back-to-top button */
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: var(--white);
+    border: none;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    nav {
+        padding: 16px 24px;
+    }
+    .search-container {
+        width: 250px;
+    }
+    .hero-container {
+        padding: 32px;
+        gap: 32px;
+    }
+    .hero-heading {
+        font-size: 56px;
+    }
+    .hero-subheading {
+        font-size: 20px;
+    }
+    .hero-image-container {
+        max-width: 400px;
+        min-width: 300px;
+        height: 500px;
+        bottom: 20px;
+    }
+    .hero-image {
+        min-height: 400px;
+        max-height: 500px;
+    }
+    .main-content {
+        padding: 0 24px;
+        gap: 32px;
+    }
+    .icon-cards-container {
+        justify-content: center;
+        gap: 8px;
+    }
+    .icon-card {
+        width: 70px;
+        height: 70px;
+    }
+    .horizontal-image-card {
+        height: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+    }
+    .nav-left,
+    .nav-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .nav-center {
+        display: none;
+    }
+    .search-container {
+        width: 100%;
+        margin-left: 0;
+    }
+    .hero-container {
+        flex-direction: column;
+        padding: 32px 24px;
+        gap: 24px;
+        text-align: center;
+    }
+    .hero-text-container {
+        position: static;
+        text-align: center;
+        margin-bottom: 24px;
+        max-width: 100%;
+    }
+    .hero-image-container{
+        width: 240px;
+        right: 16px; 
+        left: 230px;
+        height: 350px;
+        min-width: 200px;
+        bottom: 30px;
+    }
+    .hero-image{
+        width: 100%; 
+        max-width: 240px;
+        min-height: 250px;
+        max-height: 350px;
+    }
+    .hero-button{width: 20px;}
+    .arrow-nav { display: none; }
+    .two-button {width: 40px;}
+    .main-content{grid-template-columns:1fr; padding:0 16px}
+    .artwork-column,
+    .search-column,
+    .info-column { margin-top: 24px; }
+    .artwork-card {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    .info-cards { margin-top: 0; }
+    .hero-heading { font-size: 35px; }
+    .hero-subheading { font-size: 20px; margin-bottom: 20px; }
+    .view-more-btn { padding: 10px 20px; font-size: 14px; }
+    .search-chip { padding: 8px 14px; font-size: 14px; }
+    .avatar-tile { width: 70px; height: 70px; }
+    .info-card { padding: 14px; }
+    .info-title { font-size: 15px; }
+    .info-description { font-size: 13px; }
+    .replay-btn {
+        width: 50px;
+        height: 50px;
+        bottom: 70px;
+        font-size: 20px;
+    }
+    .icon-cards-container {
+        justify-content: center;
+        gap: 6px;
+    }
+    .icon-card {
+        width: 60px;
+        height: 60px;
+    }
+    .icon-card img {
+        width: 45px;
+        height: 45px;
+    }
+    .horizontal-image-card {
+        height: 150px;
+    }
+    .horizontal-image-overlay {
+        padding: 16px 12px 12px;
+    }
+    .horizontal-image-overlay h3 {
+        font-size: 16px;
+    }
+    .horizontal-image-overlay p {
+        font-size: 13px;
+    }
+    .horizontal-banner {
+        margin-top: -40px;
+    }
+    .horizontal-image-section {
+        margin-top: -30px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Focus styles for accessibility */
+button:focus,
+a:focus,
+.search-chip:focus,
+.arrow-nav:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+    </style>
+</head>
+<body>
+    <!-- Desktop Mode Modal -->
+    <div class="desktop-mode-modal" id="desktop-mode-modal">
+        <div class="desktop-mode-content">
+            <div class="desktop-mode-icon">💻</div>
+            <h2 class="desktop-mode-title">Desktop Mode Required</h2>
+            <p class="desktop-mode-message">
+                Untuk pengalaman terbaik, website ini dioptimalkan untuk mode desktop. 
+                Silakan beralih ke mode desktop atau gunakan perangkat desktop untuk akses penuh.
+            </p>
+            <div class="desktop-mode-buttons">
+                <button class="desktop-mode-btn btn-force-desktop" id="force-desktop-btn">
+                    🖥️ Paksa Mode Desktop
+                </button>
+                <button class="desktop-mode-btn btn-continue-mobile" id="continue-mobile-btn">
+                    📱 Lanjut Mobile
+                </button>
+            </div>
+            <div class="desktop-mode-warning">
+                ⚠️ Mode mobile mungkin memiliki tampilan dan fitur yang terbatas
+            </div>
+            <!-- Tombol reset untuk testing (bisa dihapus di production) -->
+            <button style="margin-top: 10px; padding: 5px 10px; font-size: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 5px; cursor: pointer;" onclick="resetDesktopModePreference()">
+                🔄 Reset Preferensi (Testing)
+            </button>
+        </div>
+    </div>
+
+    <div class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading...</p>
+    </div>
+    
+    <audio id="background-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <audio id="hover-sound" src="https://www.soundjay.com/buttons/button-1.mp3"></audio>
+
+    <nav>
+        <div class="nav-left">
+            <div class="avatar" data-tooltip="User Profile">👤</div>
+            <button class="plus-btn" data-tooltip="Add New">+</button>
+        </div>
+        <div class="nav-center">
+            <a href="#" class="nav-link" data-tooltip="Go to Homepage">Home</a>
+            <a href="#" class="nav-link active" data-tooltip="Search anything">Search</a>
+            <a href="#" class="nav-link" data-tooltip="Check messages">Message</a>
+            <div class="search-container">
+                <input type="text" id="search-bar" placeholder="Cari..." aria-label="Cari di website">
+                <div id="search-suggestions" class="search-suggestions" style="display: none;"></div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" data-tooltip="Login to your account">Log in</button>
+            <button class="btn btn-filled" data-tooltip="Sign up for free">Sign up</button>
+            <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
+            <button id="audio-toggle" class="audio-toggle" aria-label="Toggle background music">🔊</button>
+        </div>
+    </nav>
+
+    <section class="hero-container" id="hero-section">
+        <div class="small-image-container">
+            <img src="wm.png" alt="Small icon logo">
+        </div>
+        <div class="hero-text-container">
+            <h1 class="hero-heading"></h1>
+            <p class="hero-subheading"></p>
+        </div>
+            <div class="hero-buttons">
+                <a class="read-more" href="#">Read More</a>
+                <div class="progress">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        <div class="hero-image-container">
+            <img src="" alt="banner" class="hero-image" loading="lazy">
+        </div>
+        <div class="two-button">
+        <button class="arrow-nav left" aria-label="Previous slide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 19L8 12L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+        <button class="arrow-nav right" aria-label="Next slide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <section class="artwork-column animate-from-left">
+            <span class="section-label">Artwork ›</span>
+            <div class="artwork-card" data-lightbox-src="artwork1.jpeg">
+                <img src="artwork1.jpeg" alt="Artwork by @fukocchi" loading="lazy">
+                <p class="artwork-byline">by @fukocchi</p>
+            </div>
+            <div class="artwork-card" data-lightbox-src="artwork2.jpeg">
+                <img src="artwork2.jpeg" alt="Artwork by @ellenChain" loading="lazy">
+                <p class="artwork-byline">by @ellenChain</p>
+            </div>
+            <button class="view-more-btn">View More</button>
+        </section>
+
+        <section class="search-column">
+            <h2 class="section-label">Recent Search</h2>
+            <div class="search-chips animate-from-bottom" id="search-chips-container" role="list">
+                <!-- Search chips akan diupdate dinamis per slide -->
+            </div>
+            
+            <div class="horizontal-banner" id="horizontal-banner">
+                <img src="comment-card wanderer.png" alt="Character Banner" class="banner-image animate-from-bottom">
+            </div>
+            
+            <!-- GAMBAR HORIZONTAL BARU YANG BERGANTI PER SLIDE -->
+            <div class="horizontal-image-section animate-from-bottom" id="horizontal-image-section">
+                <span class="section-label">Featured Content</span>
+                <div class="horizontal-image-card" id="horizontal-image-card">
+                    <!-- Konten akan diupdate dinamis per slide -->
+                </div>
+            </div>
+        </section>
+
+        <section class="info-column">
+            <div class="icon-cards-container">
+                <div class="icon-card animate-from-left" style="background-color: #005b8f;">
+                    <span class="close-btn">&times;</span>
+                    <img src="wanderer-icon1.png" alt="Cryo character icon" loading="lazy">
+                </div>
+                <div class="icon-card animate-from-left" style="background-color: #5f6fb0;">
+                    <span class="close-btn">&times;</span>
+                    <img src="wanderer-icon2.png" alt="Sumeru icon" loading="lazy">
+                </div>
+                <div class="icon-card animate-from-left" style="background-color: #8B4513;">
+                    <span class="close-btn">&times;</span>
+                    <img src="yunjin-icon1.png" alt="Geo character icon" loading="lazy">
+                </div>
+                <div class="icon-card animate-from-left" style="background-color: #9370DB;">
+                    <span class="close-btn">&times;</span>
+                    <img src="yunjin-icon2.png" alt="Electro character icon" loading="lazy">
+                </div>
+                <div class="icon-card animate-from-left" style="background-color: #FF6347;">
+                    <span class="close-btn">&times;</span>
+                    <img src="alhaitam-icon1.png" alt="Pyro character icon" loading="lazy">
+                </div>
+                <div class="icon-card animate-from-left" style="background-color: #228B22;">
+                    <span class="close-btn">&times;</span>
+                    <img src="alhaitam-icon2.png" alt="Dendro character icon" loading="lazy">
+                </div>
+            </div>
+            <div class="info-cards" id="info-cards-container">
+                <!-- Info cards will be dynamically updated -->
+            </div>
+        </section>
+    </main>
+    
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img src="" alt="Zoomed artwork" class="lightbox-content">
+    </div>
+    
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top">
+        &uarr;
+    </button>
+    
+    <button id="replay-animations" class="replay-btn" aria-label="Replay all animations" title="Replay Animations">
+        🔄
+    </button>
+    
+    <script>
+        // Desktop Mode Detection and Control
+        function isMobileDevice() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+            const screenWidth = window.innerWidth <= 768;
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            return mobileRegex.test(userAgent) || (screenWidth && hasTouch);
+        }
+
+        function showDesktopModeModal() {
+            const modal = document.getElementById('desktop-mode-modal');
+            modal.classList.add('show');
+        }
+
+        function hideDesktopModeModal() {
+            const modal = document.getElementById('desktop-mode-modal');
+            modal.classList.remove('show');
+        }
+
+        function forceDesktopMode() {
+            // Change viewport to desktop mode
+            const viewportMeta = document.getElementById('viewport-meta');
+            viewportMeta.setAttribute('content', 'width=1200, initial-scale=0.5, user-scalable=yes');
+            
+            // Add force desktop class to body
+            document.body.classList.add('force-desktop-mode');
+            
+            // Store preference permanently
+            localStorage.setItem('desktop-mode-preference', 'desktop');
+            localStorage.setItem('force-desktop-mode', 'true');
+            
+            // Hide modal
+            hideDesktopModeModal();
+        }
+
+        function continueWithMobile() {
+            // Store preference permanently to not show modal again
+            localStorage.setItem('desktop-mode-preference', 'mobile');
+            hideDesktopModeModal();
+        }
+
+        // Check if should show desktop mode modal
+        function checkDesktopMode() {
+            const preference = localStorage.getItem('desktop-mode-preference');
+            
+            // If user previously chose desktop mode, apply it
+            if (preference === 'desktop') {
+                forceDesktopMode();
+                return;
+            }
+            
+            // If user previously chose mobile or this is first time on mobile device
+            if (isMobileDevice() && preference !== 'mobile') {
+                setTimeout(() => {
+                    showDesktopModeModal();
+                }, 1000); // Show after 1 second delay
+            }
+        }
+
+        // Reset preferences function (optional - untuk testing)
+        function resetDesktopModePreference() {
+            localStorage.removeItem('desktop-mode-preference');
+            localStorage.removeItem('force-desktop-mode');
+            location.reload();
+        }
+
+        // Desktop mode button events
+        document.getElementById('force-desktop-btn').addEventListener('click', forceDesktopMode);
+        document.getElementById('continue-mobile-btn').addEventListener('click', continueWithMobile);
+
+        // Close modal when clicking outside
+        document.getElementById('desktop-mode-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                continueWithMobile();
+            }
+        });
+
+        // Initialize dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check desktop mode requirements first
+            checkDesktopMode();
+
+            // Data untuk carousel dengan info cards, search chips, dan horizontal images
+            const slides = [
+                {
+                    heading: "Wanderer",
+                    subheading: "She is a student in the Ratuwahist Darshan,<br> specializing in Theoretical Astrology.",
+                    imageUrl: "banner.jpeg",
+                    heroImage: "hero.png",
+                    horizontalBannerImage: "comment-card wanderer.png",
+                    horizontalImage: {
+                        image: "banner.jpeg",
+                        title: "Wanderer Updates",
+                        description: "Discover new characters and exciting content from the world of Teyvat with the mysterious Wanderer"
+                    },
+                    searchChips: [
+                        "Layla ascension material",
+                        "Layla build",
+                        "Kalpalata lotus locations", 
+                        "Layla cosplay",
+                        "Layla Wallpaper",
+                        "Wanderer guide"
+                    ],
+                    infoCards: [
+                        {
+                            img: "cyro.png",
+                            title: "Cryo character",
+                            description: "Cryo is one of the seven regions of Teyvat. It is the nation that worships ice and controls the element of Cryo.",
+                            className: "glass-card"
+                        },
+                        {
+                            img: "sumeru.png", 
+                            title: "Sumeru",
+                            description: "Sumeru is one of the seven regions of Teyvat. It is the nation that worships knowledge and controls the element of Dendro.",
+                            className: ""
+                        },
+                        {
+                            img: "aka.png",
+                            title: "Akademiya", 
+                            description: "The Sumeru Akademiya is Sumeru's main governing body, as well as the major prestigious institute in all of Teyvat.",
+                            className: ""
+                        }
+                    ]
+                },
+                {
+                    heading: "Yun jin",
+                    subheading: "A world of adventure, elemental reactions, and rich lore.",
+                    imageUrl: "yunjin1.jpeg",
+                    heroImage: "yunjin.png",
+                    horizontalBannerImage: "comment-card yunjin.png",
+                    horizontalImage: {
+                        image: "yunjin1.jpeg",
+                        title: "Yun Jin Chronicles",
+                        description: "Experience the beautiful opera performances and Geo abilities of Liyue's talented performer"
+                    },
+                    searchChips: [
+                        "Yun Jin build guide",
+                        "Opera singer Liyue",
+                        "Geo support characters",
+                        "Yun Jin artifacts",
+                        "Traditional Liyue music",
+                        "Performance arts Teyvat"
+                    ],
+                    infoCards: [
+                        {
+                            img: "geo.png",
+                            title: "Geo Element",
+                            description: "Yun Jin is a Geo character who excels in providing support through her unique abilities and elemental resonance.",
+                            className: "glass-card"
+                        },
+                        {
+                            img: "giok.png",
+                            title: "Liyue Opera",
+                            description: "As an opera singer from Liyue, Yun Jin brings cultural richness and artistic flair to the battlefield.",
+                            className: ""
+                        },
+                        {
+                            img: "keadilan.png",
+                            title: "Liyue",
+                            description: "Her abilities focus on supporting teammates and enhancing their combat effectiveness through various buffs.",
+                            className: ""
+                        }
+                    ]
+                },
+                {
+                    heading: "Alhaitam",
+                    subheading: "The City of Wisdom, the nation of Dendro and scholarship.",
+                    imageUrl: "alhaitam.jpg", 
+                    heroImage: "Alhaitham.png",
+                    horizontalBannerImage: "comment-card alhaitam.png",
+                    horizontalImage: {
+                        image: "alhaitam.jpg",
+                        title: "alhaitam Research",
+                        description: "Delve into advanced Dendro research and scholarly pursuits in the halls of Sumeru Akademiya"
+                    },
+                    searchChips: [
+                        "Suiu character analysis",
+                        "Dendro element mastery",
+                        "Sumeru scholars",
+                        "Research methods Akademiya",
+                        "Elemental reactions guide",
+                        "Wisdom of Teyvat"
+                    ],
+                    infoCards: [
+                        {
+                            img: "dendro.png",
+                            title: "Dendro Vision",
+                            description: "Suiu harnesses the power of Dendro, bringing nature's wisdom and growth to combat situations.",
+                            className: "glass-card"
+                        },
+                        {
+                            img: "sumeru.png",
+                            title: "Scholarly Pursuit", 
+                            description: "A dedicated researcher focused on advancing knowledge and understanding of Teyvat's mysteries.",
+                            className: ""
+                        },
+                        {
+                            img: "aka.png",
+                            title: "Elemental Mastery",
+                            description: "Specializes in elemental reactions and combinations, making her invaluable in diverse team compositions.",
+                            className: ""
+                        }
+                    ]
+                }
+            ];
+
+            const heroHeading = document.querySelector('.hero-heading');
+            const heroSubheading = document.querySelector('.hero-subheading');
+            const heroContainer = document.querySelector('.hero-container');
+            const heroImage = document.querySelector('.hero-image');
+            const leftArrow = document.querySelector('.arrow-nav.left');
+            const rightArrow = document.querySelector('.arrow-nav.right');
+            const dots = document.querySelectorAll('.dot');
+            const iconCards = document.querySelectorAll('.icon-card');
+            const iconCardsContainer = document.querySelector('.icon-cards-container');
+            const infoCardsContainer = document.getElementById('info-cards-container');
+            const searchChipsContainer = document.getElementById('search-chips-container');
+            const horizontalBanner = document.getElementById('horizontal-banner');
+            const horizontalImageSection = document.getElementById('horizontal-image-section');
+            const horizontalImageCard = document.getElementById('horizontal-image-card');
+            let currentSlide = 0;
+            let typewriterTimeout;
+            let typewriterSpeed = 50;
+            let isTransitioning = false;
+
+            function updateIconCards() {
+                // Reset all icon cards
+                iconCards.forEach((card, index) => {
+                    card.classList.remove('highlighted', 'dimmed', 'show-close');
+                });
+
+                // Determine which icon cards to highlight based on current slide
+                let activeCards = [];
+                switch(currentSlide) {
+                    case 0: // Slide 1: icon-card 1-2 aktif vertikal
+                        activeCards = [0, 1];
+                        break;
+                    case 1: // Slide 2: icon-card 3-4 aktif vertikal
+                        activeCards = [2, 3];
+                        break;
+                    case 2: // Slide 3: icon-card 5-6 aktif vertikal
+                        activeCards = [4, 5];
+                        break;
+                }
+
+                iconCards.forEach((card, index) => {
+                    if (activeCards.includes(index)) {
+                        card.classList.add('highlighted');
+                        // For slide 1 (currentSlide === 0), show close buttons
+                        if (currentSlide === 0) {
+                            card.classList.add('show-close');
+                        }
+                    } else {
+                        card.classList.add('dimmed');
+                    }
+                });
+            }
+
+            function updateSearchChips() {
+                const slide = slides[currentSlide];
+                searchChipsContainer.innerHTML = '';
+
+                slide.searchChips.forEach((chipText, index) => {
+                    const searchChip = document.createElement('a');
+                    searchChip.className = 'search-chip';
+                    searchChip.href = '#';
+                    searchChip.setAttribute('role', 'listitem');
+                    
+                    searchChip.innerHTML = `
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        ${chipText}
+                    `;
+                    
+                    searchChipsContainer.appendChild(searchChip);
+                    
+                    // Add click event listener
+                    searchChip.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // Remove active from all chips first
+                        searchChipsContainer.querySelectorAll('.search-chip').forEach(c => c.classList.remove('active'));
+                        // Add active to clicked chip
+                        searchChip.classList.add('active');
+                    });
+                });
+
+                // Animate search chips container
+                searchChipsContainer.classList.remove('show');
+                setTimeout(() => {
+                    searchChipsContainer.classList.add('show');
+                }, 100);
+            }
+
+            function updateHorizontalImage() {
+                const slide = slides[currentSlide];
+                
+                // Update horizontal banner image
+                const bannerImg = horizontalBanner.querySelector('.banner-image');
+                bannerImg.src = slide.horizontalBannerImage;
+                
+                // Update horizontal image card
+                horizontalImageCard.innerHTML = `
+                    <img src="${slide.horizontalImage.image}" alt="${slide.horizontalImage.title}" loading="lazy">
+                    <div class="horizontal-image-overlay">
+                        <h3>${slide.horizontalImage.title}</h3>
+                        <p>${slide.horizontalImage.description}</p>
+                    </div>
+                `;
+
+                // Trigger animation
+                horizontalBanner.classList.remove('show');
+                horizontalImageSection.classList.remove('show');
+                horizontalImageCard.classList.remove('animate');
+                
+                setTimeout(() => {
+                    horizontalBanner.classList.add('show');
+                    horizontalImageSection.classList.add('show');
+                    horizontalImageCard.classList.add('animate');
+                }, 200);
+            }
+
+            function updateInfoCards() {
+                const slide = slides[currentSlide];
+                infoCardsContainer.innerHTML = '';
+
+                slide.infoCards.forEach((cardData, index) => {
+                    const infoCard = document.createElement('div');
+                    infoCard.className = `info-card ${cardData.className} animate-from-${index % 2 === 0 ? 'left' : 'right'}`;
+                    
+                    infoCard.innerHTML = `
+                        <img src="${cardData.img}" alt="${cardData.title}" class="info-img" loading="lazy">
+                        <div class="info-text">
+                            <div class="info-title">${cardData.title}</div>
+                            <div class="info-description">${cardData.description}</div>
+                            <div class="share-buttons">
+                                <a href="#" class="share-btn twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="share-btn facebook" title="Share on Facebook"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="share-btn whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    infoCardsContainer.appendChild(infoCard);
+                });
+
+                // Re-initialize animations for new cards
+                setTimeout(() => {
+                    const newCards = infoCardsContainer.querySelectorAll('.info-card');
+                    newCards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('is-visible');
+                        }, index * 100);
+                    });
+                }, 100);
+            }
+
+            function updateSlide() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+
+                const slide = slides[currentSlide];
+
+                // Smooth transition for hero image
+                heroImage.style.opacity = '0';
+                heroImage.classList.remove('slide-animation');
+                
+                setTimeout(() => {
+                    // Update hero background and floating image
+                    heroContainer.style.backgroundImage = `url('${slide.imageUrl}')`;
+                    heroImage.src = slide.heroImage;
+                    heroImage.alt = `${slide.heading} character image`;
+
+                    // Update heading and subheading
+                    heroHeading.textContent = slide.heading;
+                    heroSubheading.innerHTML = slide.subheading;
+
+                    // Fade in new hero image with animation
+                    setTimeout(() => {
+                        heroImage.style.opacity = '1';
+                        heroImage.classList.add('slide-animation');
+                        isTransitioning = false;
+                    }, 100);
+                }, 200);
+
+                // Update pagination dots
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+
+                // Update icon cards highlighting
+                updateIconCards();
+
+                // Update info cards
+                updateInfoCards();
+
+                // Update search chips (recent updates per slide)
+                updateSearchChips();
+
+                // Update horizontal images
+                updateHorizontalImage();
+            }
+
+            leftArrow.addEventListener('click', () => {
+                if (!isTransitioning) {
+                    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                    updateSlide();
+                }
+            });
+
+            rightArrow.addEventListener('click', () => {
+                if (!isTransitioning) {
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    updateSlide();
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    if (!isTransitioning && currentSlide !== index) {
+                        currentSlide = index;
+                        updateSlide();
+                    }
+                });
+            });
+
+            // Parallax effect
+            window.addEventListener('scroll', () => {
+                const scrollPos = window.scrollY;
+                heroContainer.style.backgroundPositionY = `${scrollPos * 0.5}px`;
+            });
+
+            // Dark/Light mode toggle
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function setDarkMode(isDark) {
+                document.body.classList.toggle('dark-mode', isDark);
+                localStorage.setItem('dark-mode', isDark);
+                darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+            }
+
+            // Check for saved preference or system preference
+            const savedMode = localStorage.getItem('dark-mode');
+            if (savedMode !== null) {
+                setDarkMode(savedMode === 'true');
+            } else {
+                setDarkMode(prefersDarkMode.matches);
+            }
+
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.contains('dark-mode');
+                setDarkMode(!isDark);
+            });
+            
+            // IntersectionObserver for animations
+            let observer;
+            
+            function createObserver() {
+                if (observer) {
+                    observer.disconnect();
+                }
+                
+                observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            // Add stagger delay for elements
+                            setTimeout(() => {
+                                entry.target.classList.add('is-visible');
+                            }, index * 100); // Stagger delay
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+                
+                // Observe all animated elements
+                const animatedElements = document.querySelectorAll('.animate-from-left, .animate-from-bottom, .animate-from-right');
+                animatedElements.forEach(el => observer.observe(el));
+            }
+            
+            // Initialize observer
+            createObserver();
+            
+            // Replay animations function
+            function replayAnimations() {
+                // Remove all animation classes
+                const animatedElements = document.querySelectorAll('.animate-from-left, .animate-from-bottom, .animate-from-right');
+                animatedElements.forEach(el => {
+                    el.classList.remove('is-visible');
+                });
+                
+                // Scroll to top smoothly
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                
+                // Recreate observer and restart animations after a short delay
+                setTimeout(() => {
+                    createObserver();
+                }, 500);
+                
+                // Add visual feedback to replay button
+                const replayBtn = document.getElementById('replay-animations');
+                replayBtn.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    replayBtn.style.transform = 'scale(1)';
+                }, 200);
+            }
+            
+            // Replay button event listener
+            document.getElementById('replay-animations').addEventListener('click', replayAnimations);
+            
+            // Back-to-top button
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.style.display = 'flex';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Lightbox functionality
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = lightbox.querySelector('.lightbox-content');
+            const artworkCards = document.querySelectorAll('.artwork-card');
+
+            artworkCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    lightboxImg.src = card.dataset.lightboxSrc;
+                    lightbox.classList.add('active');
+                });
+            });
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target.classList.contains('lightbox') || e.target.classList.contains('lightbox-close')) {
+                    lightbox.classList.remove('active');
+                }
+            });
+
+            // 3D Tilt Effect
+            function addTiltEffect() {
+                const tiltCards = document.querySelectorAll('.info-card, .horizontal-image-card');
+                tiltCards.forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((centerY - y) / centerY) * 10;
+                        const rotateY = ((x - centerX) / centerX) * 10;
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
+                    });
+                });
+            }
+            
+            // Search bar with auto-suggest
+            const searchBar = document.getElementById('search-bar');
+            const suggestionsContainer = document.getElementById('search-suggestions');
+            const searchSuggestions = [
+                'Layla', 'Layla build', 'Layla ascension material', 'Layla team',
+                'Genshin Impact', 'Sumeru', 'Akademiya', 'Cryo characters'
+            ];
+            
+            searchBar.addEventListener('input', () => {
+                const query = searchBar.value.toLowerCase();
+                suggestionsContainer.innerHTML = '';
+                if (query.length > 0) {
+                    const filteredSuggestions = searchSuggestions.filter(s => s.toLowerCase().includes(query));
+                    if (filteredSuggestions.length > 0) {
+                        filteredSuggestions.forEach(s => {
+                            const link = document.createElement('a');
+                            link.href = `#`;
+                            link.textContent = s;
+                            suggestionsContainer.appendChild(link);
+                        });
+                        suggestionsContainer.style.display = 'block';
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+
+            // Close suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchBar.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+
+            // Hover sound effect
+            const hoverSound = document.getElementById('hover-sound');
+            const hoverElements = document.querySelectorAll('.btn, .nav-link, .artwork-card, .search-chip, .icon-card, .info-card, .arrow-nav, .horizontal-image-card');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(() => {}); // Catch error if audio fails
+                });
+            });
+
+            // Ambient background music
+            const audioToggle = document.getElementById('audio-toggle');
+            const backgroundMusic = document.getElementById('background-music');
+            backgroundMusic.volume = 0.2;
+            let isPlaying = false;
+
+            audioToggle.addEventListener('click', () => {
+                if (isPlaying) {
+                    backgroundMusic.pause();
+                    audioToggle.textContent = '🔇';
+                } else {
+                    backgroundMusic.play().catch(() => {}); // Catch error if audio fails
+                    audioToggle.textContent = '🔊';
+                }
+                isPlaying = !isPlaying;
+            });
+            
+            // Share buttons functionality
+            function addShareButtonListeners() {
+                const shareButtons = document.querySelectorAll('.share-buttons a');
+                shareButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const url = encodeURIComponent(window.location.href);
+                        const title = encodeURIComponent(document.title);
+                        let shareUrl = '';
+                        if (btn.classList.contains('twitter')) {
+                            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+                        } else if (btn.classList.contains('facebook')) {
+                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                        } else if (btn.classList.contains('whatsapp')) {
+                            shareUrl = `https://api.whatsapp.com/send?text=${title} ${url}`;
+                        }
+                        window.open(shareUrl, '_blank');
+                    });
+                });
+            }
+
+            // Close button functionality untuk icon cards
+            const closeButtons = document.querySelectorAll('.close-btn');
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = btn.closest('.icon-card');
+                    card.style.transform = 'scale(0)';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                });
+            });
+
+            // Loading screen
+            window.addEventListener('load', () => {
+                const loadingScreen = document.querySelector('.loading-screen');
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.remove();
+                    updateSlide();
+                    addTiltEffect();
+                    addShareButtonListeners();
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>
